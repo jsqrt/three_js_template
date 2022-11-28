@@ -2,8 +2,6 @@
 import * as T from 'three';
 import dat from 'dat.gui';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-// import fragment from './shader/fragment.glsl';
-// import vertex from '../../shader/vertex.glsl';
 
 export default class Sketch {
 	constructor(options) {
