@@ -1,5 +1,12 @@
 import isMobile from 'ismobilejs';
-import { GLOBAL_VARS } from './constants';
+
+export const exist = (elementOrArray) => {
+	if (!elementOrArray && elementOrArray !== 0) return false;
+	if (elementOrArray.length === 0) {
+		return false;
+	}
+	return true;
+};
 
 export function debounce(delay, fn) {
 	let timerId;
@@ -27,24 +34,28 @@ export function debounceImmediate(delay, fn) {
 	};
 }
 
+export const isTouchDevice = () => {
+	return (
+		'ontouchstart' in window || window.navigator.maxTouchPoints > 0 || window.navigator.msMaxTouchPoints > 0
+	);
+};
+
 export const calcViewportHeight = () => {
 	const isMobileData = isMobile();
 	const isApple = isMobileData.apple.phone;
 	const isAndroid = isMobileData.android.phone;
 	const isSeven = isMobileData.seven_inch;
 
-	if (isApple || isAndroid || isSeven) {
+	if (isApple || isAndroid || isSeven || isTouchDevice()) {
 		const vh = window.innerHeight * 0.01;
 		// console.log(vh);
 		document.documentElement.style.setProperty('--vh', `${vh}px`);
 	}
 };
 
-export const calcRemValue = ({
-	windowWidth,
-	windowHeight,
-}) => {
-	const remValue = windowWidth * 0.5625 > windowHeight ? (windowHeight / 800) * 10 : (windowWidth / 1440) * 10;
+export const calcRemValue = ({ windowWidth, windowHeight }) => {
+	const remValue =
+		windowWidth * 0.5625 > windowHeight ? (windowHeight / 800) * 10 : (windowWidth / 1440) * 10;
 
 	document.documentElement.style.setProperty('--rem', `${remValue}px`);
 };
@@ -67,14 +78,6 @@ export function isFunction(func) {
 	return func instanceof Function;
 }
 
-export const isTouchDevice = () => {
-	return (
-		('ontouchstart' in window)
-		|| (window.navigator.maxTouchPoints > 0)
-		|| (window.navigator.msMaxTouchPoints > 0)
-	);
-};
-
 export function getWindowSize() {
 	const windowWidth = window.innerWidth;
 	const windowHeight = window.innerHeight;
@@ -85,7 +88,7 @@ export function getWindowSize() {
 	};
 }
 
-export const onWindowResize = cb => {
+export const onWindowResize = (cb) => {
 	if (!cb && !isFunction(cb)) return;
 
 	const handleResize = () => {
@@ -97,7 +100,17 @@ export const onWindowResize = cb => {
 	handleResize();
 };
 
-export const onWindowChangeOrientation = cb => {
+export const detectUsersOS = () => {
+	if (window.navigator.userAgent.indexOf('Win') !== -1) return 'Windows OS';
+	if (window.navigator.userAgent.indexOf('Mac') !== -1) return 'Macintosh';
+	if (window.navigator.userAgent.indexOf('Linux') !== -1) return 'Linux OS';
+	if (window.navigator.userAgent.indexOf('Android') !== -1) return 'Android OS';
+	if (window.navigator.userAgent.indexOf('like Mac') !== -1) return 'iOS';
+
+	return null;
+};
+
+export const onWindowChangeOrientation = (cb) => {
 	if ((!cb && !isFunction(cb)) || !isTouchDevice()) return;
 
 	let { windowWidth } = getWindowSize();
@@ -113,7 +126,7 @@ export const onWindowChangeOrientation = cb => {
 	window.addEventListener('resize', debounce(100, handleResize));
 };
 
-export const onWindowScroll = cb => {
+export const onWindowScroll = (cb) => {
 	if (!cb && !isFunction(cb)) return;
 
 	const handleScroll = () => {
@@ -125,12 +138,33 @@ export const onWindowScroll = cb => {
 	handleScroll();
 };
 
-export const documentReady = cb => {
+export const documentReady = (cb) => {
 	if (!cb && !isFunction(cb)) return;
 	document.addEventListener('DOMContentLoaded', cb);
 };
 
-export const pageLoad = cb => {
+export const pageLoad = (cb) => {
 	if (!cb && !isFunction(cb)) return;
-	window.addEventListener('load', cb);
+	window.addEventListener('load', () => {
+		window.loaded = true;
+		cb();
+
+		window.onWindowLoadCallbacks?.forEach((cbLocal) => {
+			if (!cbLocal && !isFunction(cbLocal)) return;
+			cbLocal();
+		});
+		window.onWindowLoadCallbacks = [];
+	});
+};
+
+export const page = (cb) => {
+	return cb;
+	// if (!cb && !isFunction(cb)) return;
+
+	// if (window.loaded) {
+	// 	cb();
+	// } else {
+	// 	if (!window.onWindowLoadCallbacks) window.onWindowLoadCallbacks = [];
+	// 	window.onWindowLoadCallbacks.push(cb);
+	// }
 };

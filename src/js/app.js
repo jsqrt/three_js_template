@@ -1,42 +1,30 @@
-import Layout from 'layout/Layout';
-import { pageLoad } from './utils';
+import layout from './layout/layout';
+import { indexPage } from './pages';
+import { articlePage } from './pages/article';
+import { uiPage } from './pages/ui';
+import { documentReady, pageLoad } from './utils';
 
-export default class App {
-	constructor() {
-		this.$htmlTag = document.querySelector('html');
-		this.pageClass =
-			this.$htmlTag.dataset.templateName &&
-			this.$htmlTag.dataset.templateName.length > 0
-				? this.$htmlTag.dataset.templateName
-				: null;
+const styles = ['color: #fff', 'background: #cf8e1f'].join(';');
+const message = 'Developed by Glivera-team https://glivera-team.com/';
 
-		this.init = this.init.bind(this);
-		this.init();
-	}
+// eslint-disable-next-line no-console
+console.info('%c%s', styles, message);
 
-	importPage() {
-		if (this.pageClass && this.pageClass !== null) {
-			import(`./pages/${this.pageClass}`)
-				.then(({ default: pageClass }) => {
-					const newPage = new pageClass();
-					newPage.init();
-				})
-				.catch((error) => {
-					console.error(
-						'Failed to load page, check data-template-name at root if correct',
-					);
-					console.dir(error, error.stack);
-				});
-		}
-	}
+window.NodeList.prototype.map = Array.prototype.map;
+window.NodeList.prototype.filter = Array.prototype.filter;
 
-	init() {
-		const initLayout = new Layout();
-		pageLoad(() => {
-			document.body.classList.add('body--loaded');
-		});
-		setTimeout(() => {
-			this.importPage();
-		}, 0);
-	}
-}
+const app = () => {
+	layout();
+	pageLoad(() => {
+		indexPage();
+		articlePage();
+		uiPage();
+		document.body.classList.add('body--loaded');
+	});
+};
+
+// -------------------  init App
+documentReady(() => {
+	app();
+});
+// -------------------  init App##

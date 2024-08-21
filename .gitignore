@@ -13,14 +13,22 @@
 *.swp
 tags
 nbproject/*
+.parcel-cache
+.cache
+sitemap.js
 
 # Windows
 Thumbs.db
 
 npm-debug.log
 
-node_modules/
-dist/
+/dist
+/dev-dist
 build/
 source/
 public/
+package-lock.json
+
+node_modules/
+test.mjs
+_html_entries/
